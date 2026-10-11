@@ -33,8 +33,8 @@ char ble_command[160];
 uint8_t Command_BLE_Size[] = { 0, 0, 0, 0 };  // 4-byte big-endian
 uint32_t ble_command_counter = 0;
 
-char *Command_On_Off_Switch0(boolean turn_on) {
-  snprintf(ble_command, sizeof(ble_command), "{\"id\":%u,\"src\":\"esp32\",\"method\":\"Switch.Set\",\"params\":{\"id\":0,\"on\":%s }}", ble_command_counter, turn_on ? "true" : "false");
+char *Command_On_Off_Switch0(uint8_t connection_id, boolean turn_on) {
+  snprintf(ble_command, sizeof(ble_command), "{\"id\":%u,\"src\":\"esp32\",\"method\":\"Switch.Set\",\"params\":{\"id\":%u,\"on\":%s }}", ble_command_counter, connection_id, turn_on ? "true" : "false");
   
   if (ble_command_counter == 9) ble_command_counter = 0;
   else ble_command_counter++;
@@ -154,7 +154,7 @@ void loop() {
 
     if (is_Connected) {
       static boolean on_not_off = true;
-      char* cmd = Command_On_Off_Switch0(on_not_off);
+      char* cmd = Command_On_Off_Switch0(0, on_not_off);
       uint8_t size = strlen(cmd);
       Command_BLE_Size[3] = size;  
       pRemoteCharacteristic->writeValue(Command_BLE_Size, 4);
